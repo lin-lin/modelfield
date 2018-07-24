@@ -17,6 +17,14 @@ opt.verbose = 1
 println("Omega (HF)          = ", Omega_HF)
 A_HF = inv(G_HF)
 
+(G_GF2,Omega_GF2) = Field.GF2(H,G_HF,opt)
+println("Omega (GF2)         = ", Omega_GF2)
+
+opt.verbose=1
+(G_GW,Omega_GW) = Field.GW(H,G_HF,opt)
+println("Omega (GW)          = ", Omega_GW)
+
+
 (G_exact,Omega_exact) = Field.direct_integration(H,20,A_HF)
 println("Omega (exact)       = ", Omega_exact)
 
