@@ -1,3 +1,4 @@
+module Utils
 function gauss_hermite(n)
 # Determines the abscisas (x) and weights (w) for the Gauss-Hermite
 # quadrature of order n>1, on the interval [-INF, +INF].  This function
@@ -29,3 +30,4 @@ w = sqrt(pi) * V[:,1].^2
 return (x,w)
 
 end # function gauss_hermite
+end # module Utils
