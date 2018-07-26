@@ -153,6 +153,8 @@ function direct_integration(H::Ham,
   E_GM = 0.25 * trace( (basis'*H.A*basis) * G + eye(Nimp) )
   println("E    = ", E)
   println("E_GM = ", E_GM)
-  
-  return (G, Omega)
+
+  Phi0 = Nimp*(log(2*pi)+1.0)
+  Phi = trace((basis'*H.A*basis)*G) - log(det(G)) - 2.0 * Omega - Phi0
+  return (G, Omega, Phi)
 end # function direct_integration

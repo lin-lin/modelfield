@@ -1,4 +1,4 @@
-include("field.jl")
+include("../src/field.jl")
 # DO NOT use `using' to aovid naming conflict in the global scope when
 # loaded
 import Field
@@ -28,11 +28,5 @@ println("Omega (GW)          = ", Omega_GW)
 (G_exact,Omega_exact) = Field.direct_integration(H,20,A_HF)
 println("Omega (exact)       = ", Omega_exact)
 
-basis = zeros(N,2)
-basis[1,1] = 1.0
-basis[2:end,2] = qr(G_exact[2:end,1])[1]
-Gimp_HF = basis'*G_HF*basis
-Aimp_HF = inv(Gimp_HF)
-Field.direct_integration(H,20,Aimp_HF,basis)
 
 

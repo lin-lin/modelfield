@@ -9,6 +9,7 @@ function DMET(H::Ham, G_global0, opt::EmbeddingOptions)
   G_local      = zeros(N,N)
   Vimp = zeros(N,N)
   Omega = 0.0
+  Phi = 0.0
 
   (partition_index, block_index, imp_index) = build_impurity_pattern(N, opt)
   num_imp_block = length(block_index)
@@ -17,7 +18,7 @@ function DMET(H::Ham, G_global0, opt::EmbeddingOptions)
 
   # Outer iteration to converge G_global
   for iter = 1 : opt.max_iter_outer
-    Omega = 0.0
+    Phi = 0.0
     for i_imp = 1 : num_imp_block
       cur_index = partition_index[i_imp]
       res_index = setdiff(1:N, cur_index)
@@ -28,12 +29,13 @@ function DMET(H::Ham, G_global0, opt::EmbeddingOptions)
       Aquad = inv(basis'*(G_global*basis))
       
       # Perform direct integration for impurity
-      (imp_G, imp_Omega) = direct_integration(H, opt.NGauss, Aquad, basis)
+      (imp_G, imp_Omega, imp_Phi) = direct_integration(H, opt.NGauss, Aquad, basis)
       imp_G = imp_G[1:width,1:width]
       G_local[block_index[i_imp]] = imp_G[:]
-      Omega += imp_Omega
+      Phi += imp_Phi
     end
 
+    # Hquad can be improved to HF or other guesses later
     Hquad = H.A
     Vimp = fit_impurity_potential(Hquad, G_local, imp_index,
                                   Vimp, opt)
@@ -60,6 +62,10 @@ function DMET(H::Ham, G_global0, opt::EmbeddingOptions)
   # Symmetrization
   G = G_global
   G = (G+G') * 0.5
+
+  Phi0 = N*(log(2*pi)+1.0)
+  println("Phi = ", Phi)
+  Omega = 0.5*(trace(H.A*G) - log(det(G)) - (Phi + Phi0))
   return (G,Omega)
 end # function DMET
 
