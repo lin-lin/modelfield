@@ -43,8 +43,8 @@ function direct_integration(H::Ham,
       # Undo the rotation 
       x = (VA*(y./sqrtDA))
       x2 = x.^2
-      Hfac1 = 0.5*(x'*(H.Amat*x))
-      Hfac2 = 1.0/8.0 * (x2'*(H.Vmat*x2))
+      Hfac1 = 0.5*(x'*(H.A*x))
+      Hfac2 = 1.0/8.0 * (x2'*(H.V*x2))
       Hfac = Hfac1 + Hfac2
       intfac2 = exp(-Hfac)
       intfac = exp(sum(y.^2)) * intfac1 * intfac2
@@ -65,7 +65,7 @@ function direct_integration(H::Ham,
   G = (G+G') * 0.5
 
   # Galitskii-Migdal formula
-  E_GM = 0.25 * trace( H.Amat * G + eye(N) )
+  E_GM = 0.25 * trace( H.A * G + eye(N) )
   println("E    = ", E)
   println("E_GM = ", E_GM)
   
@@ -128,8 +128,8 @@ function direct_integration(H::Ham,
       x = VA*(y./sqrtDA)
       xt = basis * x
       xt2 = xt.^2
-      Hfac1 = 0.5*(xt'*(H.Amat*xt))
-      Hfac2 = 1.0/8.0 * (xt2'*(H.Vmat*xt2))
+      Hfac1 = 0.5*(xt'*(H.A*xt))
+      Hfac2 = 1.0/8.0 * (xt2'*(H.V*xt2))
       Hfac = Hfac1 + Hfac2
       intfac2 = exp(-Hfac)
       intfac = exp(sum(y.^2)) * intfac1 * intfac2
@@ -150,7 +150,7 @@ function direct_integration(H::Ham,
   G = (G+G') * 0.5
 
   # Galitskii-Migdal formula
-  E_GM = 0.25 * trace( (basis'*H.Amat*basis) * G + eye(Nimp) )
+  E_GM = 0.25 * trace( (basis'*H.A*basis) * G + eye(Nimp) )
   println("E    = ", E)
   println("E_GM = ", E_GM)
   

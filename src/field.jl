@@ -10,15 +10,15 @@ using Utils.gauss_hermite
 
 mutable struct Ham
   N::Int64
-  Amat::Array{Float64,2}
-  Vmat::Array{Float64,2}
+  A::Array{Float64,2}
+  V::Array{Float64,2}
   Nb::Int64
 
-  function Ham(N,Amat,Vmat)
-    assert(size(Amat,1) == size(Amat,2) == N)
-    assert(size(Vmat,1) == size(Vmat,2) == N)
+  function Ham(N,A,V)
+    assert(size(A,1) == size(A,2) == N)
+    assert(size(V,1) == size(V,2) == N)
 
-    new(N, Amat, Vmat)
+    new(N, A, V)
   end
 end # struct Ham
 
@@ -47,9 +47,11 @@ mutable struct EmbeddingOptions
   tol_inner::Float64
   max_iter_inner::Int
   alpha_inner::Float64
+  
   # Impurity definition
-  impurity_width::Int
-  impurity_stride::Int
+  impurity_width::Int64
+  impurity_stride::Int64
+  NGauss::Int64
   
   verbose::Int
 
@@ -61,9 +63,16 @@ mutable struct EmbeddingOptions
     max_iter_inner = 100
     alpha_inner = 1.0
 
+    impurity_width = 1
+    impurity_stride = 1
+    NGauss = 20
+
     verbose = 1
+
+
     new(tol_outer,max_iter_outer,alpha_outer,
         tol_inner,max_iter_inner,alpha_inner,
+        impurity_width, impurity_stride, NGauss,
         verbose)
   end
 end # struct EmbeddingOptions

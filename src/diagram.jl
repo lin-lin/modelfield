@@ -11,15 +11,15 @@ function hartree_fock(H::Ham, G0, opt::SCFOptions)
 
   for iter = 1 : opt.max_iter
     rho = diag(G)
-    Sigma1 = -0.5*diagm(H.Vmat * rho) - (H.Vmat.*G)
+    Sigma1 = -0.5*diagm(H.V * rho) - (H.V.*G)
     Sigma = Sigma1
-    GNew = inv(H.Amat-Sigma)
+    GNew = inv(H.A-Sigma)
     nrmerr = norm(G-GNew)/norm(G)
     if( opt.verbose > 1 )
       @printf("iter = %4d,  nrmerr = %15.5e\n", iter, nrmerr)
     end
     if( nrmerr < opt.tol )
-      @printf("Convergence reached. nrmerr = %g\n", nrmerr)
+      @printf("Convergence reached for HF. nrmerr = %g\n", nrmerr)
       break
     end
     G = (1-opt.alpha)*G + opt.alpha*GNew
@@ -31,7 +31,7 @@ function hartree_fock(H::Ham, G0, opt::SCFOptions)
   # Luttinger-Ward functional
   Phi0 = N*(log(2*pi)+1.0)
   Phi = 1/2*trace(Sigma1*G)
-  Omega = 0.5*(trace(H.Amat*G) - log(det(G)) - (Phi + Phi0))
+  Omega = 0.5*(trace(H.A*G) - log(det(G)) - (Phi + Phi0))
   return (G, Omega)
 end # function hartree_fock
 
@@ -50,27 +50,27 @@ function GF2(H::Ham, G0, opt::SCFOptions)
 
   for iter = 1 : opt.max_iter
     rho = diag(G)
-    Sigma1 = -0.5*diagm(H.Vmat * rho) - (H.Vmat.*G)
+    Sigma1 = -0.5*diagm(H.V * rho) - (H.V.*G)
     Chi = G.*G
     # Ring term
-    Sigma2 = 1/2 * G.*(H.Vmat * Chi * H.Vmat)
+    Sigma2 = 1/2 * G.*(H.V * Chi * H.V)
     # Second order exchange term
     for i = 1 : N
       for j = 1 : N
-        tt1 = H.Vmat[:,i].*G[:,j]
-        tt2 = H.Vmat[:,j].*G[:,i]
+        tt1 = H.V[:,i].*G[:,j]
+        tt2 = H.V[:,j].*G[:,i]
         Sigma2[i,j] += tt1'*G*tt2
       end
     end
     
     Sigma = Sigma1 + Sigma2
-    GNew = inv(H.Amat-Sigma)
+    GNew = inv(H.A-Sigma)
     nrmerr = norm(G-GNew)/norm(G)
     if( opt.verbose > 1 )
       @printf("iter = %4d,  nrmerr = %15.5e\n", iter, nrmerr)
     end
     if( nrmerr < opt.tol )
-      @printf("Convergence reached. nrmerr = %g\n", nrmerr)
+      @printf("Convergence reached for GF2. nrmerr = %g\n", nrmerr)
       break
     end
     G = (1-opt.alpha)*G + opt.alpha*GNew
@@ -82,7 +82,7 @@ function GF2(H::Ham, G0, opt::SCFOptions)
   # Luttinger-Ward functional
   Phi0 = N*(log(2*pi)+1.0)
   Phi = 1/2*trace(Sigma1*G) + 1/4*trace(Sigma2*G)
-  Omega = 0.5*(trace(H.Amat*G) - log(det(G)) - (Phi + Phi0))
+  Omega = 0.5*(trace(H.A*G) - log(det(G)) - (Phi + Phi0))
   return (G, Omega)
 end # function GF2
 
@@ -103,17 +103,17 @@ function GW(H::Ham, G0, opt::SCFOptions)
   for iter = 1 : opt.max_iter
     rho = diag(G)
     Chi = G.*G
-    W = inv(eye(N) + 1/2*H.Vmat*Chi) * H.Vmat
-    Sigma1 = -0.5*diagm(H.Vmat * rho) - (W.*G)
+    W = inv(eye(N) + 1/2*H.V*Chi) * H.V
+    Sigma1 = -0.5*diagm(H.V * rho) - (W.*G)
     
     Sigma = Sigma1
-    GNew = inv(H.Amat-Sigma)
+    GNew = inv(H.A-Sigma)
     nrmerr = norm(G-GNew)/norm(G)
     if( opt.verbose > 1 )
       @printf("iter = %4d,  nrmerr = %15.5e\n", iter, nrmerr)
     end
     if( nrmerr < opt.tol )
-      @printf("Convergence reached. nrmerr = %g\n", nrmerr)
+      @printf("Convergence reached for GW. nrmerr = %g\n", nrmerr)
       break
     end
     G = (1-opt.alpha)*G + opt.alpha*GNew
@@ -125,8 +125,8 @@ function GW(H::Ham, G0, opt::SCFOptions)
   # Luttinger-Ward functional
   Phi0 = N*(log(2*pi)+1.0)
   rho = diag(G)
-  SigmaHartree = -1/2*diagm(H.Vmat * rho)
-  Phi = 1/2*trace(SigmaHartree*G) - trace(logm(eye(N)+1/2*H.Vmat*Chi))
-  Omega = 0.5*(trace(H.Amat*G) - log(det(G)) - (Phi + Phi0))
+  SigmaHartree = -1/2*diagm(H.V * rho)
+  Phi = 1/2*trace(SigmaHartree*G) - trace(logm(eye(N)+1/2*H.V*Chi))
+  Omega = 0.5*(trace(H.A*G) - log(det(G)) - (Phi + Phi0))
   return (G, Omega)
-end # function GF2
+end # function GW
