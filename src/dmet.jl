@@ -29,7 +29,9 @@ function DMET(H::Ham, G_global0, opt::EmbeddingOptions)
       Aquad = inv(basis'*(G_global*basis))
       
       # Perform direct integration for impurity
-      (imp_G, imp_Omega, imp_Phi) = direct_integration(H, opt.NGauss, Aquad, basis)
+      (imp_G, imp_Omega, imp_Phi) = direct_integration(H, opt.NGauss,
+                                                       Aquad, basis,
+                                                       opt.verbose)
       imp_G = imp_G[1:width,1:width]
       G_local[block_index[i_imp]] = imp_G[:]
       Phi += imp_Phi
@@ -42,7 +44,7 @@ function DMET(H::Ham, G_global0, opt::EmbeddingOptions)
     G_global_new = inv(Hquad + Vimp)
 
     nrmerr = norm(G_global - G_global_new)/norm(G_global)
-    if( opt.verbose > 0 )
+    if( opt.verbose > 1 )
       @printf("iter = %4d,  nrmerr = %15.5e\n", iter, nrmerr)
     end
     if( nrmerr < opt.tol_outer )
@@ -52,10 +54,12 @@ function DMET(H::Ham, G_global0, opt::EmbeddingOptions)
     G_global = (1-opt.alpha_outer)*G_global + opt.alpha_outer*G_global_new
   end
 
-  println("G_global =")
-  display(G_global)
-  println("G_local =")
-  display(G_local)
+  if( opt.verbose > 1 )
+    println("G_global =")
+    display(G_global)
+    println("G_local =")
+    display(G_local)
+  end
   mismatch = norm(G_global[imp_index] - G_local[imp_index])
   @printf("Mismatch between global and local = %g\n", mismatch)
 
@@ -66,7 +70,8 @@ function DMET(H::Ham, G_global0, opt::EmbeddingOptions)
   Phi0 = N*(log(2*pi)+1.0)
   println("Phi = ", Phi)
   Omega = 0.5*(trace(H.A*G) - log(det(G)) - (Phi + Phi0))
-  return (G,Omega)
+  E_GM = 0.25 * trace( H.A * G + eye(N) )
+  return (G, Omega, E_GM)
 end # function DMET
 
 # Build the impurity sparse structure pattern

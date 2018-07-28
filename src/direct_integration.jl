@@ -69,7 +69,7 @@ function direct_integration(H::Ham,
   println("E    = ", E)
   println("E_GM = ", E_GM)
   
-  return (G, Omega)
+  return (G, Omega, E_GM)
 end # function direct_integration
 
 
@@ -85,7 +85,8 @@ end # function direct_integration
 function direct_integration(H::Ham, 
                             NGauss, 
                             Aquad::Array{Float64,2},
-                            basis::Array{Float64,2})
+                            basis::Array{Float64,2},
+                            verbose)
   N = H.N
   Nimp = size(basis,2)
   assert( size(basis,1) == N )
@@ -138,8 +139,10 @@ function direct_integration(H::Ham,
       G += (x * x') * intfac
     end
   end
-  println("Percentage of evaluated configurations = ", 
-          cnt / float(NGauss^N))
+  if( verbose > 1 )
+    println("Percentage of evaluated configurations = ", 
+            cnt / float(NGauss^N))
+  end
 
   Z = Z * facDA
   G = G * facDA / Z
@@ -151,8 +154,10 @@ function direct_integration(H::Ham,
 
   # Galitskii-Migdal formula
   E_GM = 0.25 * trace( (basis'*H.A*basis) * G + eye(Nimp) )
-  println("E    = ", E)
-  println("E_GM = ", E_GM)
+  if( verbose > 1 )
+    println("E    = ", E)
+    println("E_GM = ", E_GM)
+  end
 
   Phi0 = Nimp*(log(2*pi)+1.0)
   Phi = trace((basis'*H.A*basis)*G) - log(det(G)) - 2.0 * Omega - Phi0

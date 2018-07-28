@@ -32,7 +32,8 @@ function hartree_fock(H::Ham, G0, opt::SCFOptions)
   Phi0 = N*(log(2*pi)+1.0)
   Phi = 1/2*trace(Sigma1*G)
   Omega = 0.5*(trace(H.A*G) - log(det(G)) - (Phi + Phi0))
-  return (G, Omega)
+  E_GM = 0.25 * trace( H.A * G + eye(N) )
+  return (G, Omega, E_GM)
 end # function hartree_fock
 
 
@@ -83,7 +84,8 @@ function GF2(H::Ham, G0, opt::SCFOptions)
   Phi0 = N*(log(2*pi)+1.0)
   Phi = 1/2*trace(Sigma1*G) + 1/4*trace(Sigma2*G)
   Omega = 0.5*(trace(H.A*G) - log(det(G)) - (Phi + Phi0))
-  return (G, Omega)
+  E_GM = 0.25 * trace( H.A * G + eye(N) )
+  return (G, Omega, E_GM)
 end # function GF2
 
 
@@ -128,5 +130,6 @@ function GW(H::Ham, G0, opt::SCFOptions)
   SigmaHartree = -1/2*diagm(H.V * rho)
   Phi = 1/2*trace(SigmaHartree*G) - trace(logm(eye(N)+1/2*H.V*Chi))
   Omega = 0.5*(trace(H.A*G) - log(det(G)) - (Phi + Phi0))
-  return (G, Omega)
+  E_GM = 0.25 * trace( H.A * G + eye(N) )
+  return (G, Omega, E_GM)
 end # function GW

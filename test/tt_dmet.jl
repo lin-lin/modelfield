@@ -5,7 +5,7 @@ import Field
 
 N = 3
 Amat = 2*diagm(ones(N)) + diagm(ones(N-1),1) + diagm(ones(N-1),-1)
-Vmat = 1.0*eye(N,N)
+Vmat = 1000.0*eye(N,N)
 
 
 H = Field.Ham(N,Amat,Vmat)
@@ -13,21 +13,24 @@ H = Field.Ham(N,Amat,Vmat)
 G0 = ones(N,N)
 opt = Field.SCFOptions()
 opt.verbose = 1
-(G_HF,Omega_HF) = Field.hartree_fock(H,G0,opt)
-println("Omega (HF)          = ", Omega_HF)
+(G_HF,Omega_HF,E_HF) = Field.hartree_fock(H,G0,opt)
+println("Omega  (HF)          = ", Omega_HF)
+println("Energy (HF)          = ", E_HF)
 A_HF = inv(G_HF)
 
-(G_exact,Omega_exact) = Field.direct_integration(H,20,A_HF)
-println("Omega (exact)       = ", Omega_exact)
+(G_GW,Omega_GW) = Field.GW(H,G_HF,opt)
+(G_GW,Omega_GW,E_GW) = Field.GW(H,G_HF,opt)
+println("Omega  (GW)          = ", Omega_GW)
+println("Energy (GW)          = ", E_GW)
 
-#basis = zeros(N,2)
-#basis[1,1] = 1.0
-#basis[2:end,2] = qr(G_exact[2:end,1])[1]
-#Gimp_HF = basis'*G_HF*basis
-#Aimp_HF = inv(Gimp_HF)
-#Field.direct_integration(H,20,Aimp_HF,basis)
+(G_exact,Omega_exact, E_exact) = Field.direct_integration(H,20,A_HF)
+println("Omega  (exact)       = ", Omega_exact)
+println("Energy (exact)       = ", E_exact)
+
 
 optDMET = Field.EmbeddingOptions()
 optDMET.verbose=1
-(G_DMET, Omega_DMET) = Field.DMET(H,G_exact,optDMET)
+(G_DMET, Omega_DMET, E_DMET) = Field.DMET(H,G_HF,optDMET)
+println("Energy (DMET)        = ", E_DMET)
+
 
