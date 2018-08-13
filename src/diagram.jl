@@ -3,7 +3,7 @@
 # Self-consistency is controlled through opt.maxiter
 function hartree_fock(H::Ham, G0, opt::SCFOptions)
   N = H.N
-  assert(size(G0,1) == N)
+  @assert size(G0,1) == N
   G = copy(G0)
   Gnew = copy(G0)
 
@@ -11,7 +11,7 @@ function hartree_fock(H::Ham, G0, opt::SCFOptions)
 
   for iter = 1 : opt.max_iter
     rho = diag(G)
-    Sigma1 = -0.5*diagm(H.V * rho) - (H.V.*G)
+    Sigma1 = -0.5*diagm(0 => H.V * rho) - (H.V.*G)
     Sigma = Sigma1
     GNew = inv(H.A-Sigma)
     nrmerr = norm(G-GNew)/norm(G)
@@ -30,9 +30,9 @@ function hartree_fock(H::Ham, G0, opt::SCFOptions)
   
   # Luttinger-Ward functional
   Phi0 = N*(log(2*pi)+1.0)
-  Phi = 1/2*trace(Sigma1*G)
-  Omega = 0.5*(trace(H.A*G) - log(det(G)) - (Phi + Phi0))
-  E_GM = 0.25 * trace( H.A * G + eye(N) )
+  Phi = 1/2*tr(Sigma1*G)
+  Omega = 0.5*(tr(H.A*G) - log(det(G)) - (Phi + Phi0))
+  E_GM = 0.25 * tr( H.A * G + Matrix(1.0I,N,N) )
   return (G, Omega, E_GM)
 end # function hartree_fock
 
@@ -42,7 +42,7 @@ end # function hartree_fock
 # Self-consistency is controlled through opt.maxiter
 function GF2(H::Ham, G0, opt::SCFOptions)
   N = H.N
-  assert(size(G0,1) == N)
+  @assert(size(G0,1) == N)
   G = copy(G0)
   Gnew = copy(G0)
   
@@ -51,7 +51,7 @@ function GF2(H::Ham, G0, opt::SCFOptions)
 
   for iter = 1 : opt.max_iter
     rho = diag(G)
-    Sigma1 = -0.5*diagm(H.V * rho) - (H.V.*G)
+    Sigma1 = -0.5*diagm(0 => H.V * rho) - (H.V.*G)
     Chi = G.*G
     # Ring term
     Sigma2 = 1/2 * G.*(H.V * Chi * H.V)
@@ -82,9 +82,9 @@ function GF2(H::Ham, G0, opt::SCFOptions)
   
   # Luttinger-Ward functional
   Phi0 = N*(log(2*pi)+1.0)
-  Phi = 1/2*trace(Sigma1*G) + 1/4*trace(Sigma2*G)
-  Omega = 0.5*(trace(H.A*G) - log(det(G)) - (Phi + Phi0))
-  E_GM = 0.25 * trace( H.A * G + eye(N) )
+  Phi = 1/2*tr(Sigma1*G) + 1/4*tr(Sigma2*G)
+  Omega = 0.5*(tr(H.A*G) - log(det(G)) - (Phi + Phi0))
+  E_GM = 0.25 * tr( H.A * G + Matrix(1.0I,N,N) )
   return (G, Omega, E_GM)
 end # function GF2
 
@@ -94,7 +94,7 @@ end # function GF2
 # Self-consistency is controlled through opt.maxiter
 function GW(H::Ham, G0, opt::SCFOptions)
   N = H.N
-  assert(size(G0,1) == N)
+  @assert(size(G0,1) == N)
   G = copy(G0)
   Gnew = copy(G0)
   
@@ -105,8 +105,8 @@ function GW(H::Ham, G0, opt::SCFOptions)
   for iter = 1 : opt.max_iter
     rho = diag(G)
     Chi = G.*G
-    W = inv(eye(N) + 1/2*H.V*Chi) * H.V
-    Sigma1 = -0.5*diagm(H.V * rho) - (W.*G)
+    W = inv(Matrix(1.0I,N,N) + 1/2*H.V*Chi) * H.V
+    Sigma1 = -0.5*diagm( 0 => H.V * rho) - (W.*G)
     
     Sigma = Sigma1
     GNew = inv(H.A-Sigma)
@@ -127,9 +127,9 @@ function GW(H::Ham, G0, opt::SCFOptions)
   # Luttinger-Ward functional
   Phi0 = N*(log(2*pi)+1.0)
   rho = diag(G)
-  SigmaHartree = -1/2*diagm(H.V * rho)
-  Phi = 1/2*trace(SigmaHartree*G) - trace(logm(eye(N)+1/2*H.V*Chi))
-  Omega = 0.5*(trace(H.A*G) - log(det(G)) - (Phi + Phi0))
-  E_GM = 0.25 * trace( H.A * G + eye(N) )
+  SigmaHartree = -1/2*diagm( 0 => H.V * rho)
+  Phi = 1/2*tr(SigmaHartree*G) - tr(log(Matrix(1.0I,N,N)+1/2*H.V*Chi))
+  Omega = 0.5*(tr(H.A*G) - log(det(G)) - (Phi + Phi0))
+  E_GM = 0.25 * tr( H.A * G + Matrix(1.0I,N,N) )
   return (G, Omega, E_GM)
 end # function GW

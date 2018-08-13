@@ -4,6 +4,7 @@
 #
 # The default suggested Aquad is from the inverse of G of the
 # Hartree-Fock solution.
+
 function direct_integration(H::Ham, 
                             NGauss, 
                             Aquad::Array{Float64,2})
@@ -12,12 +13,12 @@ function direct_integration(H::Ham,
 
   # compute the transformed coordinate
   # Note that Aquad should be guaranteed to be positive definite
-  (DA,VA) = eig(Aquad*0.5)
-  assert( all(DA .> 0.0) )
+  (DA,VA) = eigen(Aquad*0.5)
+  @assert all(DA .> 0.0)
   sqrtDA = sqrt.(abs.(DA))
-  facDA = 1./prod(sqrtDA)
+  facDA = 1 ./ prod(sqrtDA)
 
-  assert(NGauss^N < typemax(Int64))
+  @assert NGauss^N < typemax(Int64)
   inddim = ntuple(i->NGauss,N)
   x = zeros(N)
   y = zeros(N)
@@ -31,7 +32,7 @@ function direct_integration(H::Ham,
 
   cnt = 0
   for gind = 1 : NGauss^N
-    lind = ind2sub(inddim,gind)
+    lind = CartesianIndices(inddim)[gind]
     for i = 1 : N
       y[i] = xGauss[lind[i]]
       w[i] = wGauss[lind[i]]
@@ -65,7 +66,7 @@ function direct_integration(H::Ham,
   G = (G+G') * 0.5
 
   # Galitskii-Migdal formula
-  E_GM = 0.25 * trace( H.A * G + eye(N) )
+  E_GM = 0.25 * tr( H.A * G + Matrix(1.0I,N,N) )
   println("E    = ", E)
   println("E_GM = ", E_GM)
   
@@ -89,19 +90,19 @@ function direct_integration(H::Ham,
                             verbose)
   N = H.N
   Nimp = size(basis,2)
-  assert( size(basis,1) == N )
-  assert( size(Aquad,1) == size(Aquad,2) == Nimp )
+  @assert size(basis,1) == N 
+  @assert size(Aquad,1) == size(Aquad,2) == Nimp 
   
   (xGauss,wGauss) = gauss_hermite(NGauss)
 
   # compute the transformed coordinate
   # Note that Aquad should be guaranteed to be positive definite
-  (DA,VA) = eig(Aquad*0.5)
-  assert( all(DA .> 0.0) )
+  (DA,VA) = eigen(Aquad*0.5)
+  @assert( all(DA .> 0.0) )
   sqrtDA = sqrt.(abs.(DA))
-  facDA = 1./prod(sqrtDA)
+  facDA = 1 ./ prod(sqrtDA)
 
-  assert(NGauss^Nimp < typemax(Int64))
+  @assert(NGauss^Nimp < typemax(Int64))
   inddim = ntuple(i->NGauss,Nimp)
   xt = zeros(N)
   x = zeros(Nimp)
@@ -116,7 +117,7 @@ function direct_integration(H::Ham,
 
   cnt = 0
   for gind = 1 : NGauss^Nimp
-    lind = ind2sub(inddim,gind)
+    lind = CartesianIndices(inddim)[gind]
     for i = 1 : Nimp
       y[i] = xGauss[lind[i]]
       w[i] = wGauss[lind[i]]
@@ -153,13 +154,13 @@ function direct_integration(H::Ham,
   G = (G+G') * 0.5
 
   # Galitskii-Migdal formula
-  E_GM = 0.25 * trace( (basis'*H.A*basis) * G + eye(Nimp) )
+  E_GM = 0.25 * tr( (basis'*H.A*basis) * G + Matrix(1.0I,Nimp,Nimp) )
   if( verbose > 1 )
     println("E    = ", E)
     println("E_GM = ", E_GM)
   end
 
   Phi0 = Nimp*(log(2*pi)+1.0)
-  Phi = trace((basis'*H.A*basis)*G) - log(det(G)) - 2.0 * Omega - Phi0
+  Phi = tr((basis'*H.A*basis)*G) - log(det(G)) - 2.0 * Omega - Phi0
   return (G, Omega, Phi)
 end # function direct_integration

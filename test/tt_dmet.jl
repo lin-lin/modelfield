@@ -1,11 +1,11 @@
 include("../src/field.jl")
 # DO NOT use `using' to aovid naming conflict in the global scope when
 # loaded
-import Field
+import ..Field
 
 N = 3
-Amat = 2*diagm(ones(N)) + diagm(ones(N-1),1) + diagm(ones(N-1),-1)
-Vmat = 1000.0*eye(N,N)
+Amat = 2*diagm(0=> ones(N)) + diagm(1=>ones(N-1)) + diagm(-1=>ones(N-1))
+Vmat = 1.0*Matrix(1.0I,N,N)
 
 
 H = Field.Ham(N,Amat,Vmat)

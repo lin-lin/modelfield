@@ -2,11 +2,13 @@
 #
 # Lin Lin
 # Revision: 7/23/2018
-include("utils.jl")
+include("./utils.jl")
 
 module Field
 
-using Utils.gauss_hermite 
+using ..Utils:gauss_hermite 
+using Printf
+using LinearAlgebra
 
 mutable struct Ham
   N::Int64
@@ -15,8 +17,8 @@ mutable struct Ham
   Nb::Int64
 
   function Ham(N,A,V)
-    assert(size(A,1) == size(A,2) == N)
-    assert(size(V,1) == size(V,2) == N)
+    @assert size(A,1) == size(A,2) == N
+    @assert size(V,1) == size(V,2) == N
 
     new(N, A, V)
   end

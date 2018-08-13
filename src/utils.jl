@@ -1,4 +1,6 @@
 module Utils
+using LinearAlgebra
+
 function gauss_hermite(n)
 # Determines the abscisas (x) and weights (w) for the Gauss-Hermite
 # quadrature of order n>1, on the interval [-INF, +INF].  This function
@@ -15,13 +17,13 @@ function gauss_hermite(n)
 # that it is symmetrical.
 
 a   = sqrt.((1:n-1)/2.0)
-CM  = diagm(a,1) + diagm(a,-1)
+CM  = diagm(1=>a) + diagm(-1=>a)
 
 # Determining the abscissas (x) and weights (w) - since
 # det(xI-CM)=L_n(x), the abscissas are the roots of the characteristic
 # polynomial, i.d. the eigenvalues of CM
 # - the weights can be derived from the corresponding eigenvectors.
-(L,V) = eig(CM)
+(L,V) = eigen(CM)
 ind = sortperm(L)
 x = L[ind]
 V = V[:,ind]'

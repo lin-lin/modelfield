@@ -3,7 +3,7 @@
 # Currently, the embedding does not allow overlapping impurity elements.
 function DMET(H::Ham, G_global0, opt::EmbeddingOptions)
   N = H.N
-  assert(size(G_global0,1) == size(G_global0,2) == N)
+  @assert(size(G_global0,1) == size(G_global0,2) == N)
   G_global     = copy(G_global0)
   G_global_new = copy(G_global0)
   G_local      = zeros(N,N)
@@ -22,9 +22,9 @@ function DMET(H::Ham, G_global0, opt::EmbeddingOptions)
     for i_imp = 1 : num_imp_block
       cur_index = partition_index[i_imp]
       res_index = setdiff(1:N, cur_index)
-      tmp_basis = qr(G_global[res_index,cur_index])[1]
+      tmp_basis = Matrix(qr(G_global[res_index,cur_index]).Q)
       basis = zeros(N,2*width)
-      basis[cur_index,1:width] = eye(width)
+      basis[cur_index,1:width] = Matrix(1.0I,width,width)
       basis[res_index,width+1:2*width] = tmp_basis
       Aquad = inv(basis'*(G_global*basis))
       
@@ -69,17 +69,17 @@ function DMET(H::Ham, G_global0, opt::EmbeddingOptions)
 
   Phi0 = N*(log(2*pi)+1.0)
   println("Phi = ", Phi)
-  Omega = 0.5*(trace(H.A*G) - log(det(G)) - (Phi + Phi0))
-  E_GM = 0.25 * trace( H.A * G + eye(N) )
+  Omega = 0.5*(tr(H.A*G) - log(det(G)) - (Phi + Phi0))
+  E_GM = 0.25 * tr( H.A * G + Matrix(1.0I,N,N) )
   return (G, Omega, E_GM)
 end # function DMET
 
 # Build the impurity sparse structure pattern
 function build_impurity_pattern(N,opt::EmbeddingOptions)
-  assert( opt.impurity_stride == opt.impurity_width )
+  @assert( opt.impurity_stride == opt.impurity_width )
   num_imp_block = ceil(Int64, N/opt.impurity_stride)
-  partition_index = Array{Any,1}(num_imp_block)
-  block_index = Array{Any,1}(num_imp_block)
+  partition_index = Array{Any,1}(undef,num_imp_block)
+  block_index = Array{Any,1}(undef,num_imp_block)
   global_index = zeros(Int64,0)
   idx_mat = reshape(1:N^2,N,N)
   for i_imp = 1 : num_imp_block
