@@ -85,5 +85,6 @@ include("diagram.jl")
 
 include("dmet.jl")
 
+include("dmft.jl")
 
 end # Module Field

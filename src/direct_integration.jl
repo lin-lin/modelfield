@@ -7,7 +7,8 @@
 
 function direct_integration(H::Ham, 
                             NGauss, 
-                            Aquad::Array{Float64,2})
+                            Aquad::Array{Float64,2},
+                            verbose=1)
   N = H.N
   (xGauss,wGauss) = gauss_hermite(NGauss)
 
@@ -54,8 +55,10 @@ function direct_integration(H::Ham,
       G += (x * x') * intfac
     end
   end
-  println("Percentage of evaluated configurations = ", 
-          cnt / float(NGauss^N))
+  if( verbose > 1 )
+      println("Percentage of evaluated configurations = ", 
+              cnt / float(NGauss^N))
+  end
 
   Z = Z * facDA
   G = G * facDA / Z
@@ -67,8 +70,10 @@ function direct_integration(H::Ham,
 
   # Galitskii-Migdal formula
   E_GM = 0.25 * tr( H.A * G + Matrix(1.0I,N,N) )
-  println("E    = ", E)
-  println("E_GM = ", E_GM)
+  if( verbose > 1 )
+      println("E    = ", E)
+      println("E_GM = ", E_GM)
+  end
   
   return (G, Omega, E_GM)
 end # function direct_integration
@@ -87,7 +92,7 @@ function direct_integration(H::Ham,
                             NGauss, 
                             Aquad::Array{Float64,2},
                             basis::Array{Float64,2},
-                            verbose)
+                            verbose = 1)
   N = H.N
   Nimp = size(basis,2)
   @assert size(basis,1) == N 

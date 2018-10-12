@@ -1,3 +1,6 @@
+# Preliminary result shows that the bare DMFT is more accurate than
+# DMET. GW only improves with respect to HF marginally.
+
 using LinearAlgebra
 include("../src/field.jl")
 # DO NOT use `using' to aovid naming conflict in the global scope when
@@ -5,8 +8,8 @@ include("../src/field.jl")
 import ..Field
 
 N = 5
-Amat = 3*diagm(0=> ones(N)) + diagm(1=>ones(N-1)) + diagm(-1=>ones(N-1))
-Vmat = 2.0*Matrix(1.0I,N,N)
+Amat = 2*diagm(0=> ones(N)) + diagm(1=>ones(N-1)) + diagm(-1=>ones(N-1))
+Vmat = 1.0*Matrix(1.0I,N,N)
 
 
 H = Field.Ham(N,Amat,Vmat)
@@ -19,10 +22,10 @@ println("Omega  (HF)          = ", Omega_HF)
 println("Energy (HF)          = ", E_HF)
 A_HF = inv(G_HF)
 
-#(G_GW,Omega_GW) = Field.GW(H,G_HF,opt)
-#(G_GW,Omega_GW,E_GW) = Field.GW(H,G_HF,opt)
-#println("Omega  (GW)          = ", Omega_GW)
-#println("Energy (GW)          = ", E_GW)
+(G_GW,Omega_GW) = Field.GW(H,G_HF,opt)
+(G_GW,Omega_GW,E_GW) = Field.GW(H,G_HF,opt)
+println("Omega  (GW)          = ", Omega_GW)
+println("Energy (GW)          = ", E_GW)
 
 (G_exact,Omega_exact, E_exact) = Field.direct_integration(H,20,A_HF)
 println("Omega  (exact)       = ", Omega_exact)
@@ -46,3 +49,7 @@ optDMET.verbose=1
 println("Energy (DMET)        = ", E_DMET3)
 
 
+optDMFT = Field.EmbeddingOptions()
+optDMFT.verbose=1
+(G_DMFT1, Omega_DMFT, E_DMFT1) = Field.DMFT_1(H,G_HF,optDMFT)
+println("Energy (DMFT)        = ", E_DMFT1)

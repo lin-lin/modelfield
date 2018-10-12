@@ -50,7 +50,7 @@ function DMET_1(H::Ham, G_global0, opt::EmbeddingOptions)
       @printf("iter = %4d,  nrmerr = %15.5e\n", iter, nrmerr)
     end
     if( nrmerr < opt.tol_outer )
-      @printf("Convergence reached for DMET. nrmerr = %g\n", nrmerr)
+      @printf("Convergence reached of DMET. nrmerr = %g\n", nrmerr)
       break
     end
     G_global = (1-opt.alpha_outer)*G_global + opt.alpha_outer*G_global_new
@@ -190,7 +190,7 @@ function DMET_2(H::Ham, G_global0, opt::EmbeddingOptions)
       @printf("iter = %4d,  nrmerr = %15.5e\n", iter, nrmerr)
     end
     if( nrmerr < opt.tol_outer )
-      @printf("Convergence reached for DMET. nrmerr = %g\n", nrmerr)
+      @printf("Convergence reached of DMET. nrmerr = %g\n", nrmerr)
       break
     end
     G_global = (1-opt.alpha_outer)*G_global + opt.alpha_outer*G_global_new
@@ -261,7 +261,7 @@ function DMET_3(H::Ham, G_global0, opt::EmbeddingOptions)
       @printf("iter = %4d,  nrmerr = %15.5e\n", iter, nrmerr)
     end
     if( nrmerr < opt.tol_outer )
-      @printf("Convergence reached for DMET. nrmerr = %g\n", nrmerr)
+      @printf("Convergence reached of DMET. nrmerr = %g\n", nrmerr)
       break
     end
     G_global = (1-opt.alpha_outer)*G_global + opt.alpha_outer*G_global_new
